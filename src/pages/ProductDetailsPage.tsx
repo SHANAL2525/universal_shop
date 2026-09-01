@@ -1,0 +1,20 @@
+import { ArrowLeft, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { ProductGallery } from '../components/product/ProductGallery';
+import { ProductOptions } from '../components/product/ProductOptions';
+import { QuantitySelector } from '../components/product/QuantitySelector';
+import { RelatedProducts } from '../components/product/RelatedProducts';
+import { WhatsAppOrderButton } from '../components/product/WhatsAppOrderButton';
+import { PriceDisplay } from '../components/shared/PriceDisplay';
+import { StockBadge } from '../components/shared/StockBadge';
+import { products } from '../data/products';
+export default function ProductDetailsPage() { const { slug } = useParams(); const product = products.find((p) => p.slug === slug); const [size, setSize] = useState<string>(); const [colour, setColour] = useState<string>(); const [quantity, setQuantity] = useState(1); const [errors, setErrors] = useState<{size?: string; colour?: string}>({});
+  useEffect(() => { setSize(undefined); setColour(undefined); setQuantity(1); setErrors({}); }, [slug]);
+  if (!product) return <section className="container not-found"><span className="kicker">Product unavailable</span><h1>We couldn’t find that piece.</h1><p>It may have been renamed or removed from the current collection.</p><Link className="button button--dark" to="/">Browse the catalogue</Link></section>;
+  const sameCategory = products.filter((p) => p.id !== product.id && p.category === product.category);
+  const sameAudience = products.filter((p) => p.id !== product.id && p.audience === product.audience && !sameCategory.includes(p));
+  const related = [...sameCategory, ...sameAudience].slice(0, 4);
+  const availability = product.stockQuantity === 0 ? 'No units currently available' : product.stockStatus === 'low-stock' ? `Only ${product.stockQuantity} left` : `${product.stockQuantity} available`;
+  return <><div className="container product-page"><Link className="back-link" to="/"><ArrowLeft/> Back to catalogue</Link><div className="product-layout"><ProductGallery images={product.images}/><section className="product-info"><div className="eyebrow">{product.category} · {product.code}</div><h1>{product.name}</h1><PriceDisplay price={product.price} originalPrice={product.originalPrice} large/><StockBadge status={product.stockStatus}/><p className="lead">{product.shortDescription}</p><div className="divider"/><ProductOptions label="Size" options={product.sizes} selected={size} error={errors.size} onSelect={(v) => {setSize(v); setErrors((e) => ({...e, size: undefined}));}}/><ProductOptions label="Colour" options={product.colours} selected={colour} error={errors.colour} onSelect={(v) => {setColour(v); setErrors((e) => ({...e, colour: undefined}));}}/><QuantitySelector value={quantity} max={product.stockQuantity} disabled={!product.stockQuantity} onChange={setQuantity}/><p className="stock-count" aria-live="polite">{availability}</p><WhatsAppOrderButton product={product} size={size} colour={colour} quantity={quantity} onValidation={setErrors}/><div className="product-description"><h2>About this piece</h2><p>{product.description}</p></div><div className="service-points"><span><PackageCheck/> Quality checked</span><span><Truck/> Islandwide delivery</span><span><ShieldCheck/> Secure WhatsApp ordering</span></div></section></div></div><RelatedProducts products={related}/></>;
+}
