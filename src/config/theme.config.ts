@@ -1,1 +1,1 @@
-export const themeConfig = { template: 'fashion-boutique', accent: '#b38a55' } as const;
+export const themeConfig = { template: 'urban-minimal', accent: '#62674f' } as const;
