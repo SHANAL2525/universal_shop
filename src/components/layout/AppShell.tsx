@@ -1,14 +1,32 @@
-import { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { ShopFooter } from './ShopFooter';
-import { ShopHeader } from './ShopHeader';
+import { useLayoutEffect, useRef } from 'react';
+import { Outlet, useLocation, useNavigationType } from 'react-router-dom';
 
 export function AppShell() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const scrollPositions = useRef(new Map<string, number>());
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  }, [pathname]);
+  useLayoutEffect(() => {
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
 
-  return <><ShopHeader/><main><Outlet/></main><ShopFooter/></>;
+    return () => {
+      window.history.scrollRestoration = previousScrollRestoration;
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const historyKey = location.key;
+    const targetPosition = navigationType === 'POP'
+      ? scrollPositions.current.get(historyKey) ?? 0
+      : 0;
+
+    window.scrollTo({ top: targetPosition, left: 0, behavior: 'auto' });
+
+    return () => {
+      scrollPositions.current.set(historyKey, window.scrollY);
+    };
+  }, [location.key, navigationType]);
+
+  return <Outlet/>;
 }

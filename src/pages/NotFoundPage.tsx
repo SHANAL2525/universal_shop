@@ -1,3 +1,3 @@
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-export default function NotFoundPage() { return <section className="container not-found"><span className="not-found__number">404</span><span className="kicker">Page not found</span><h1>This page is unavailable.</h1><p>Return to the catalogue to keep browsing the current drop.</p><Link className="button button--dark" to="/"><ArrowLeft aria-hidden="true"/> Return to catalogue</Link></section>; }
+export default function NotFoundPage() { return <main className="global-not-found"><span>404</span><p>Page not found</p><h1>This preview is unavailable.</h1><Link to="/"><ArrowLeft aria-hidden="true"/> Return to template selector</Link></main>; }
